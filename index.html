@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hand Me Up — Adding sizes (visual guide)</title>
+<style>
+  /* ============ house tokens, copied from the real app ============ */
+  :root{
+    --ink:#111111; --ink-soft:#2a3132; --cream:#faf9f6; --cream-dim:#f5f4f1;
+    --line:#e0deda; --line-soft:#ccc9c4; --slate:#5f6566;
+    --n50:#fafafa; --n100:#f5f5f5; --n200:#e5e5e5; --n300:#d4d4d4; --n400:#a3a3a3;
+    --n500:#737373; --n600:#525252; --n700:#404040; --n800:#262626; --n900:#171717; --n950:#0a0a0a;
+    --emerald:#34d399; --red:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;font-size:15px}
+
+  /* ============ page chrome ============ */
+  .wrap{max-width:1180px;margin:0 auto;padding:48px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:40px}
+  .eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
+  h1{font-size:38px;font-weight:500;letter-spacing:-.8px;margin-bottom:12px}
+  .lede{font-size:16px;color:var(--slate);max-width:70ch}
+  .lede b{color:var(--ink);font-weight:600}
+
+  .step{margin:56px 0 0;page-break-inside:avoid}
+  .step-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .step-num{font-size:13px;font-weight:600;color:var(--slate);border:1px solid var(--line-soft);border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px}
+  h2{font-size:24px;font-weight:600;letter-spacing:-.3px}
+  .step-body{margin:14px 0 22px;max-width:74ch;color:#333}
+  .step-body p+p{margin-top:10px}
+
+  .shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .shot-cap{font-size:12.5px;color:var(--slate);margin:9px 0 0;padding-left:2px}
+  .shot-cap b{color:var(--ink)}
+
+  /* callout arrows over screenshots */
+  .stage{position:relative}
+  .pin{position:absolute;background:var(--ink);color:#fff;font-size:11.5px;font-weight:600;
+       padding:5px 11px;border-radius:6px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.28);z-index:7}
+  .pin::after{content:"";position:absolute;width:0;height:0;border:6px solid transparent}
+  .pin.down::after{top:100%;left:50%;margin-left:-6px;border-top-color:var(--ink)}
+  .pin.up::after{bottom:100%;left:50%;margin-left:-6px;border-bottom-color:var(--ink)}
+  .pin.left::after{right:100%;top:50%;margin-top:-6px;border-right-color:var(--ink)}
+  .pin.right::after{left:100%;top:50%;margin-top:-6px;border-left-color:var(--ink)}
+  .ring{position:absolute;border:2px solid #fbbf24;border-radius:8px;z-index:6;pointer-events:none;
+        box-shadow:0 0 0 3px rgba(251,191,36,.22)}
+
+  /* tables in prose */
+  table.guide{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0}
+  table.guide th{text-align:left;padding:9px 12px;border-bottom:2px solid var(--ink);font-size:11px;
+                letter-spacing:.8px;text-transform:uppercase;color:var(--slate);font-weight:600}
+  table.guide td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.guide td:first-child{font-weight:600;white-space:nowrap}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:var(--cream-dim);
+      border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+  pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;background:var(--cream-dim);
+      border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:2}
+
+  .note{border-left:3px solid var(--ink);background:var(--cream-dim);padding:14px 18px;margin:18px 0;font-size:14.5px;border-radius:0 8px 8px 0}
+  .note.warn{border-left-color:#b45309;background:#fdf6e9}
+  .note b{font-weight:600}
+
+  /* =============================================================
+     FAKE ADMIN — geometry & classes mirror AdminShell.tsx + commerce-admin
+     ============================================================= */
+  .adm{display:flex;min-height:560px;background:var(--n950);color:var(--n100);
+       font-size:14px;position:relative}
+  .adm .rail{flex:0 0 216px;background:var(--cream);border-right:1px solid var(--line);
+             padding:0 0 14px;display:flex;flex-direction:column}
+  .adm .logo{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .adm .logo span{font-size:15px;font-weight:600;letter-spacing:-.2px}
+  .adm .logo .tag{font-size:9px;letter-spacing:1px;text-transform:uppercase;background:#e8f0e3;color:#3d6b2e;
+                  padding:2px 6px;border-radius:3px;font-weight:700}
+  .adm .grp{padding:14px 16px 4px;font-size:10px;font-weight:500;letter-spacing:1.2px;
+            text-transform:uppercase;color:rgba(95,101,102,.7)}
+  .adm .nav a{display:flex;align-items:center;gap:10px;padding:8px 16px;margin:1px 8px;border-radius:8px;
+              font-size:13px;font-weight:500;color:var(--slate);text-decoration:none}
+  .adm .nav a svg{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .adm .nav a.on{background:var(--ink);color:var(--cream)}
+  .adm .who{margin-top:auto;padding:12px 16px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:9px}
+  .adm .av{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--cream);
+           font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+  .adm .who div{font-size:12px;line-height:1.35}
+  .adm .who small{color:var(--slate);font-size:11px}
+
+  .adm .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .adm .bar{display:flex;align-items:center;justify-content:space-between;padding:11px 22px;
+            background:#fff;border-bottom:1px solid var(--line)}
+  .adm .bar .crumb{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--ink)}
+  .adm .bar .site{font-size:12px;color:#1d4ed8;border:1px solid #bfdbfe;background:#eff6ff;
+                  padding:4px 10px;border-radius:6px;text-decoration:none}
+  .adm .body{padding:26px 28px;flex:1}
+
+  /* dark commerce-admin surface */
+  .dark{background:var(--n950);color:var(--n100);min-height:100%}
+  .dark .h1{font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--n50)}
+  .dark .sub{font-size:14px;color:var(--n500);margin-top:4px}
+  .dark .hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:7px;border-radius:8px;font-size:14px;font-weight:500;
+       padding:9px 15px;border:1px solid transparent;cursor:default}
+  .btn.pri{background:var(--ink);color:#fff}
+  .btn.sec{background:transparent;color:var(--n100);border-color:var(--n700)}
+  .btn.sm{font-size:13px;padding:6px 12px}
+
+  .tbl{margin-top:20px;border:1px solid var(--n800);border-radius:10px;overflow:hidden}
+  .tbl table{width:100%;border-collapse:collapse;font-size:14px}
+  .tbl th{padding:12px 14px;text-align:left;font-size:12px;font-weight:500;letter-spacing:.025em;
+          color:var(--n500);background:rgba(23,23,23,.6);border-bottom:1px solid var(--n800)}
+  .tbl td{padding:14px;border-bottom:1px solid var(--n900);vertical-align:middle}
+  .tbl tr:last-child td{border-bottom:none}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--n500)}
+  .badge{display:inline-block;font-size:12px;font-weight:500;padding:3px 9px;border-radius:999px;
+         background:rgba(17,17,17,.1);color:var(--n300);border:1px solid var(--n700)}
+  .badge.info{background:rgba(17,17,17,.1);color:var(--n200);border-color:var(--n600)}
+  .lnk{color:var(--n300);text-decoration:underline;text-underline-offset:2px;font-size:14px}
+  .tick{color:var(--emerald);font-weight:700}
+
+  /* modal / drawer overlays */
+  .ovl{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;z-index:6}
+  .modal{margin:auto;width:440px;background:var(--n900);border:1px solid var(--n800);border-radius:14px;
+         box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .modal .mh{padding:16px 20px;border-bottom:1px solid var(--n800);font-size:16px;font-weight:600;color:var(--n50)}
+  .modal .mb{padding:20px}
+  .modal .mf{padding:14px 20px;border-top:1px solid var(--n800);display:flex;justify-content:flex-end;gap:8px}
+  .drawer{margin-left:auto;width:420px;height:100%;background:var(--n900);border-left:1px solid var(--n800);
+          display:flex;flex-direction:column}
+  .drawer .dh{padding:16px 20px;border-bottom:1px solid var(--n800);font-size:16px;font-weight:600;color:var(--n50)}
+  .drawer .db{padding:18px 20px;overflow:auto;flex:1}
+
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:14px;font-weight:500;color:var(--n200);margin-bottom:6px}
+  .fld .hint{display:block;font-size:12px;color:var(--n500);margin-top:5px}
+  .inp{width:100%;background:rgba(10,10,10,.7);border:1px solid var(--n800);border-radius:8px;
+       padding:9px 12px;font-size:14px;color:var(--n50)}
+  .inp.filled{background:var(--n950);border-color:var(--n600)}
+  .inp.mono{font-family:ui-monospace,Menlo,monospace}
+  .chk{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;font-size:14px;color:var(--n300)}
+  .chk .box{width:17px;height:17px;flex:0 0 17px;border-radius:5px;border:1px solid var(--n700);
+            background:var(--n950);margin-top:2px;display:flex;align-items:center;justify-content:center;
+            font-size:11px;color:#fff}
+  .chk .box.on{background:var(--ink);border-color:var(--ink)}
+  .chk small{display:block;font-size:12px;color:var(--n500);margin-top:3px}
+
+  .vrow{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;font-size:14px;color:var(--n300)}
+  .vrow:hover{background:var(--n900)}
+  .vrow .nm{flex:1;color:var(--n200);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vrow .ord{color:var(--n600);font-size:12px;display:flex;gap:2px}
+  .vrow .rm{color:var(--n500);font-size:12px;margin-left:4px}
+  .swatch{width:16px;height:16px;border-radius:50%;flex:0 0 16px;border:1px solid var(--n700);background:transparent}
+
+  .chip{display:inline-block;border:1px solid var(--n800);border-radius:999px;padding:5px 11px;font-size:12px;
+        color:var(--n400);margin:3px 4px 3px 0}
+  .chip.sel{border-color:var(--ink);background:rgba(17,17,17,.1);color:var(--n200)}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:var(--slate)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Hand Me Up · Studio guide</div>
+  <h1>Adding sizes to your products</h1>
+  <p class="lede">Every screen you need is already in the admin — this walks through it with pictures.
+  The one part only you can decide is <b>Step 1</b>. Steps 2–3 take about two minutes. Step 4 is the slow part, and we can do it for you.</p>
+</header>
+<div class="note" style="margin-top:26px">
+  <b>How to read the pictures.</b> Each screen below is drawn from the live admin — same menus, same fields, same wording as you'll see. The amber box marks the thing to look at; the black label says what to do with it. Product names and size values in them are examples, not your shop's data.
+</div>
+
+
+<!-- ===================== STEP 1 ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">1</span><h2>Decide: one size list, or two?</h2></div>
+  <div class="step-body">
+    <p>You mentioned sizes <code>XS–XL</code> and numeric <code>0–16</code>. Before creating anything, choose whether they share one list or sit in two separate ones.</p>
+  </div>
+  <table class="guide">
+    <tr><th></th><th>One list</th><th>Two lists</th></tr>
+    <tr><td>What you create</td><td>One attribute called <code>Size</code>, holding all 14 values</td><td>Two attributes: <code>Size</code> (XS–XL) and <code>Kids size</code> (0–16)</td></tr>
+    <tr><td>What a shopper sees</td><td>All 14 buttons on every product</td><td>Only the sizes that piece actually comes in</td></tr>
+    <tr><td>Shop filtering</td><td>One filter row</td><td>Two filter rows</td></tr>
+    <tr><td>Best if</td><td>The numeric sizes are smaller versions of the same adult line</td><td>Kids' pieces are their own thing, sold separately</td></tr>
+  </table>
+  <div class="note warn">
+    <b>Pick before you create.</b> The code and the variant-defining setting cannot be changed afterward, and deleting a value a product already uses is refused. If you'd rather not start and stop, tell me which way you're leaning and I'll set it up.
+  </div>
+  <p class="step-body" style="margin-top:18px">The practical risk of one list: someone looking at an adult gown sees <code>0 2 4 6 8…</code> next to <code>XS S M L XL</code> and has to work out which apply. If any of the collection is children's wear, two lists avoids that entirely.</p>
+</section>
+
+<!-- ===================== STEP 2 ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">2</span><h2>Create the Size attribute</h2></div>
+  <div class="step-body"><p>Sign in at <code>handmeupnyc.com/admin</code>, then click <b>attributes</b> in the left menu under CATALOG.</p></div>
+
+  <!-- shot A: sidebar -->
+  <div class="shot stage">
+    <div class="adm">
+      <aside class="rail">
+        <div class="logo"><span>·hand-me-up·</span><i class="tag">admin</i></div>
+        <div class="nav">
+          <div class="grp">Site</div>
+          <a><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>content</a>
+          <div class="grp">Catalog</div>
+          <a><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>products</a>
+          <a><svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7L9 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/></svg>categories</a>
+          <a class="on"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="17" y1="16" x2="23" y2="16"/></svg>attributes</a>
+          <a><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>looks</a>
+          <a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>events</a>
+          <div class="grp">Sales</div>
+          <a><svg viewBox="0 0 24 24"><path d="M16.5 9.4 7 5.5"/><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>orders</a>
+          <a><svg viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1V2l-2 1-2-1z"/><path d="M14 15.5V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v11.5"/></svg>invoices</a>
+          <a><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>customers</a>
+        </div>
+        <div class="who"><div class="av">JM</div><div>team member<br><small>admin</small></div></div>
+      </aside>
+      <div class="main">
+        <div class="bar"><span class="crumb">attributes</span><a class="site">↗ view site</a></div>
+        <div class="body dark">
+          <div class="hd">
+            <div><div class="h1">Attributes</div>
+              <div class="sub">Size, colour, and anything else a variant is picked by — set up here, then used when adding or generating a product's variants.</div></div>
+            <span class="btn pri">+ New attribute</span>
+          </div>
+          <div class="tbl"><table>
+            <tr><th>Name</th><th>Code</th><th>Kind</th><th>Filterable</th><th>Values</th><th></th></tr>
+            <tr><td style="color:var(--n50);font-weight:500">No attributes yet</td><td colspan="5" style="color:var(--n500)">Create Size or Colour to start describing variants by more than just a name.</td></tr>
+          </table></div>
+        </div>
+      </div>
+    </div>
+    <span class="ring" style="left:6px;top:235px;width:205px;height:45px"></span>
+    <span class="pin down" style="left:78px;top:196px">click here ↓</span>
+  </div>
+  <p class="shot-cap"><b>A.</b> The admin, left menu under CATALOG. This is where every size in the shop gets defined.</p>
+
+  <div class="step-body" style="margin-top:26px"><p>Click <b>New attribute</b> top right. Fill it exactly like this:</p></div>
+
+  <!-- shot B: new attribute modal -->
+  <div class="shot stage" style="margin-top:14px">
+    <div class="adm" style="filter:saturate(.9)">
+      <aside class="rail" style="opacity:.5">
+        <div class="logo"><span>·hand-me-up·</span></div>
+        <div class="nav">
+          <div class="grp">Catalog</div>
+          <a>products</a><a>categories</a><a class="on">attributes</a><a>looks</a>
+        </div>
+      </aside>
+      <div class="main" style="position:relative">
+        <div class="bar"><span class="crumb">attributes</span></div>
+        <div class="body dark"></div>
+        <div class="ovl">
+          <div class="modal">
+            <div class="mh">New attribute</div>
+            <div class="mb">
+              <div class="fld"><label>Name <span style="color:var(--red)">*</span></label>
+                <div class="inp filled">Size</div><span class="hint">e.g. Size, Colour, Flavour.</span></div>
+              <div class="fld"><label>Code <span style="color:var(--red)">*</span></label>
+                <div class="inp mono filled">size</div><span class="hint">Fixed once created — what variants and variant generation reference this by.</span></div>
+              <div class="chk"><span class="box on">✓</span><span><b style="color:var(--n200)">Variant-defining</b>
+                <small>Decides whether this distinguishes one sellable thing from another (Size does; Allergen information doesn't). Cannot be changed once created.</small></span></div>
+              <div class="chk"><span class="box on">✓</span><span>Show in the storefront's filter panel</span></div>
+              <div class="chk"><span class="box on">✓</span><span>A shopper must choose one</span></div>
+            </div>
+            <div class="mf"><span class="btn sec">Cancel</span><span class="btn pri">Create</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="ring" style="left:463px;top:312px;width:414px;height:95px"></span>
+    <span class="pin left" style="left:890px;top:345px">tick this — the important one</span>
+  </div>
+  <p class="shot-cap"><b>B.</b> Three fields, three ticks. <b>Variant-defining</b> is the one that matters: unticked, no product can ever be sold in more than one size. "Variant" is what we call each sellable version of a piece — the M and the L of one trouser are two variants of it.</p>
+  <div class="note"><b>If Size already appears in the Attributes list</b>, skip creating it and open its values instead (Step 3).</div>
+</section>
+
+<!-- ===================== STEP 3 ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">3</span><h2>Add the sizes themselves</h2></div>
+  <div class="step-body"><p>Back on the Attributes list, find the <b>Size</b> row and click <b>Manage values</b> in the Values column. A panel slides in from the right.</p></div>
+
+  <!-- shot C: values drawer -->
+  <div class="shot stage">
+    <div class="adm">
+      <aside class="rail" style="opacity:.45">
+        <div class="logo"><span>·hand-me-up·</span></div>
+        <div class="nav"><div class="grp">Catalog</div><a>products</a><a>categories</a><a class="on">attributes</a><a>looks</a></div>
+      </aside>
+      <div class="main" style="position:relative">
+        <div class="bar"><span class="crumb">attributes</span></div>
+        <div class="body dark">
+          <div class="hd"><div><div class="h1">Attributes</div></div><span class="btn pri">+ New attribute</span></div>
+          <div class="tbl"><table>
+            <tr><th>Name</th><th>Code</th><th>Kind</th><th>Filterable</th><th>Values</th><th></th></tr>
+            <tr><td style="color:var(--n50);font-weight:500">Size</td><td class="mono">size</td>
+                <td><span class="badge info">Variant-defining</span></td><td class="tick">✓</td>
+                <td><span class="lnk">Manage values</span></td><td style="text-align:right"><span style="color:var(--n500);font-size:12px">Edit</span></td></tr>
+          </table></div>
+        </div>
+        <div class="ovl" style="background:rgba(0,0,0,.45)">
+          <div class="drawer">
+            <div class="dh">Values — Size</div>
+            <div class="db">
+              <p style="font-size:12px;color:var(--n500);margin-bottom:12px">In display order — the storefront and every value picker in this admin show them this way.</p>
+              <div class="vrow"><span class="swatch"></span><span class="nm">XS</span><span class="mono">xs</span><span class="ord">▲▼</span><span class="rm">Remove</span></div>
+              <div class="vrow"><span class="swatch"></span><span class="nm">S</span><span class="mono">s</span><span class="ord">▲▼</span><span class="rm">Remove</span></div>
+              <div class="vrow" style="background:var(--n900)"><span class="swatch"></span><span class="nm">M</span><span class="mono">m</span><span class="ord">▲▼</span><span class="rm">Remove</span></div>
+              <div class="vrow"><span class="swatch"></span><span class="nm">L</span><span class="mono">l</span><span class="ord">▲▼</span><span class="rm">Remove</span></div>
+              <div class="vrow"><span class="swatch"></span><span class="nm">XL</span><span class="mono">xl</span><span class="ord">▲▼</span><span class="rm">Remove</span></div>
+              <div class="vrow"><span class="swatch"></span><span class="nm">8 (2 yrs)</span><span class="mono">8_2_yrs</span><span class="ord">▲▼</span><span class="rm">Remove</span></div>
+              <div style="border:1px solid var(--n800);border-radius:10px;padding:14px;margin-top:16px">
+                <div class="fld"><label>Value <span style="color:var(--red)">*</span></label>
+                  <div class="inp filled">10 (4 yrs)</div><span class="hint">e.g. Medium, or Ocean Blue.</span></div>
+                <div class="fld"><label>Code <span style="color:var(--red)">*</span></label>
+                  <div class="inp mono filled">10_4_yrs</div></div>
+                <div style="display:flex;gap:8px;margin-top:4px"><span class="btn sec sm">Cancel</span><span class="btn pri sm">Add</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="ring" style="left:731px;top:401px;width:365px;height:82px"></span>
+    <span class="pin right" style="left:284px;top:432px">type it however you want it shown →</span>
+  </div>
+  <p class="shot-cap"><b>C.</b> The Values panel. <b>Value</b> is what shoppers read — type it exactly as you want it on the shop. <b>Code</b> fills itself in from the Value; leave it alone, it's internal.</p>
+
+  <div class="step-body" style="margin-top:24px">
+    <p>Standard sizes, added in this order (the ▲▼ arrows set display order and the shop follows it):</p>
+    <pre>XS   S   M   L   XL</pre>
+    <p>Numeric sizes:</p>
+    <pre>0   2   4   6   8   10   12   14   16</pre>
+    <p>Odd numbers aren't listed — say so if you want them and we'll add them. If you chose <b>two lists</b> in Step 1, create <code>Kids size</code> the same way first, then put these nine numbers under it instead of under Size.</p>
+  </div>
+
+  <div class="note warn">
+    <b>About the bare numbers.</b> A button reading <code>8</code> tells a shopper little — they'd have to already know what a size 8 means for a child. You can write them however you like:<br>
+    <code>8 (2 yrs)</code> &nbsp; <code>8 · US kids</code> &nbsp; <code>8 (approx 2y)</code><br>
+    Whatever goes in the <b>Value</b> field is exactly what shows on the shop; the internal code stays short either way. Pairing each with an age is the usual way brands do it — but it's your call, you know the customer.
+  </div>
+  <div class="note"><b>Removing a value later</b> is possible, but any existing option already using it keeps it — removal only stops it being offered on new ones.</div>
+</section>
+
+<!-- ===================== STEP 4 ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">4</span><h2>Give a product its sizes</h2></div>
+  <div class="step-body"><p>Go to <b>products</b> in the left menu, click a style, scroll to the <b>Variants</b> section — that's where the sizes for that piece live.</p></div>
+
+  <!-- shot D: generate variants -->
+  <div class="shot stage">
+    <div class="adm">
+      <aside class="rail" style="opacity:.45">
+        <div class="logo"><span>·hand-me-up·</span></div>
+        <div class="nav"><div class="grp">Catalog</div><a class="on">products</a><a>categories</a><a>attributes</a><a>looks</a></div>
+      </aside>
+      <div class="main" style="position:relative">
+        <div class="bar"><span class="crumb">products · indigo check shirt</span></div>
+        <div class="body dark">
+          <div class="hd"><div><div class="h1">Indigo Check Shirt</div><div class="sub">$180 · Look 11 — Indigo Check Three-Piece</div></div></div>
+          <div style="margin-top:22px;border-top:1px solid var(--n800);padding-top:18px">
+            <div style="font-size:16px;font-weight:600;color:var(--n50);margin-bottom:12px">Variants</div>
+            <span class="btn sec sm">+ Add variant</span>
+            <span class="btn pri sm" style="margin-left:8px">Generate variants</span>
+          </div>
+        </div>
+        <div class="ovl">
+          <div class="modal" style="width:520px">
+            <div class="mh">Generate variants</div>
+            <div class="mb">
+              <p style="font-size:12px;color:var(--n500);margin-bottom:16px">Pick the values to cross for each attribute — three sizes and four colours creates twelve variants. Combinations that already exist are skipped. Give each new one an actual price and availability afterward.</p>
+              <div style="margin-bottom:16px">
+                <div style="font-size:14px;font-weight:500;color:var(--n200);margin-bottom:8px">Size</div>
+                <span class="chip sel">XS</span><span class="chip sel">S</span><span class="chip sel">M</span><span class="chip sel">L</span><span class="chip sel">XL</span>
+              </div>
+              <div class="fld"><label>Starting price</label>
+                <div class="inp filled">180.00</div><span class="hint">Applied to every generated variant — adjust each afterward as needed.</span></div>
+              <div class="fld"><label>SKU pattern <span style="color:var(--red)">*</span></label>
+                <div class="inp mono filled">HMU-SHIRT-{size}</div>
+                <span class="hint">e.g. TROUSER-WIDE-{size}-{colour} — one SKU per combination.</span></div>
+            </div>
+            <div class="mf"><span class="btn sec">Cancel</span><span class="btn pri">Generate</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="ring" style="left:423px;top:396px;width:494px;height:52px"></span>
+    <span class="pin left" style="left:830px;top:408px">{size} fills itself in per size</span>
+  </div>
+  <p class="shot-cap"><b>D.</b> <b>Generate variants</b> builds all sizes at once. Pick the size chips, set a starting price, and write the stock code with <code>{size}</code> where the size goes — <code>HMU-SHIRT-{size}</code> gives <code>HMU-SHIRT-XS</code>, <code>HMU-SHIRT-S</code>, and so on automatically.</p>
+
+  <div class="note warn">
+    <b>Generated options are not sellable yet.</b> The screen says this plainly. Until you give each one a quantity (or mark it made-to-order), shoppers can't buy it. Budget a few minutes per product — this is the step people miss.
+  </div>
+
+  <div class="step-body" style="margin-top:22px">
+    <p><b>One size at a time</b> instead? Click <b>Add variant</b>: <b>Name</b> is the size (<code>M</code>), <b>SKU</b> is that size's stock code (required, cannot be changed later), <b>Price</b> required, <b>Compare-at price</b> optional and shows struck through. A <b>Size</b> dropdown appears under those fields once Steps 2–3 are done — if it's missing, go back and check them.</p>
+  </div>
+</section>
+
+<!-- ===================== STEP 5 ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">5</span><h2>Check it worked</h2></div>
+  <div class="step-body">
+    <p>Open that product on the live shop. You should see the size buttons, and one must be chosen before adding to bag. If they don't appear, the usual cause is the variant having no stock set — Step 4's warning.</p>
+  </div>
+</section>
+
+<!-- ===================== ONE OF A KIND ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">✱</span><h2>For "one of a kind" pieces</h2></div>
+  <div class="step-body">
+    <p>Most of the collection is genuinely unique — one copy, no size choice. Those stay exactly as they are: one variant, no size. Only add sizes to pieces actually made in a range.</p>
+    <p>If a piece is one-of-a-kind but you still want its size recorded (so it's searchable and shows on a spec sheet), add a value called <code>One size</code> in Step 3 and assign it. That records the size without offering a choice.</p>
+  </div>
+</section>
+
+<!-- ===================== HANDOFF ===================== -->
+<section class="step">
+  <div class="step-head"><span class="step-num">→</span><h2>Or let us do the slow part</h2></div>
+  <div class="step-body">
+    <p>Adding those values is quick — two minutes. Applying sizes across 50 styles by hand is not: roughly an hour of clicking, and easy to end up with stock codes that don't match each other.</p>
+    <p><b>Do Steps 2 and 3 yourself</b> (that sets the vocabulary, and it lets us work from the same list), then send us the sizing chart — which styles come in which sizes, and prices per size if they differ — and we'll load Step 4 in one pass and check every product against your chart before it goes live.</p>
+  </div>
+</section>
+
+<footer>
+  Screens above are drawn from the live admin at <code>handmeupnyc.com/admin</code> — same menus, same fields, same wording, so what you see matches what's described. Product names and values shown are examples, not your live data.<br><br>
+  Prepared for Jussara · 18 November 2026 · Questions: reply to this and Thuy will pick it up.
+</footer>
+
+</div>
+</body>
+</html>
